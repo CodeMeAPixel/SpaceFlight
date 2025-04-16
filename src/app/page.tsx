@@ -1,103 +1,127 @@
-import Image from "next/image";
+'use client';
+
+import ClientSpaceFlight from '@/components/ClientSpaceFlight';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [gameStarted, setGameStarted] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [stars, setStars] = useState<React.ReactNode[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    // Generate stars only on the client side to avoid hydration mismatch
+    const generatedStars = Array.from({ length: 100 }).map((_, i) => {
+      const top = `${Math.random() * 100}%`;
+      const left = `${Math.random() * 100}%`;
+      const width = `${Math.random() * 3 + 1}px`;
+      const height = `${Math.random() * 3 + 1}px`;
+      const opacity = Math.random() * 0.7 + 0.3;
+      const duration = `${Math.random() * 5 + 3}s`;
+      const delay = `${Math.random() * 5}s`;
+      
+      return (
+        <div
+          key={i}
+          className="absolute rounded-full bg-white"
+          style={{
+            top,
+            left,
+            width,
+            height,
+            opacity,
+            animation: `twinkle ${duration} ease-in-out infinite`,
+            animationDelay: delay
+          }}
+        />
+      );
+    });
+    
+    setStars(generatedStars);
+    
+    // Add a slight delay to allow for smooth animation
+    const timer = setTimeout(() => {
+      setLoaded(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-purple-900/20"></div>
+          {/* Star field background - client-side rendered */}
+          <div className="absolute inset-0 overflow-hidden">
+            {stars}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        
+        <div className={`max-w-2xl transition-all duration-1000 px-6 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="text-center space-y-6">
+            <h1 className="text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">SPACEFLIGHT</h1>
+            <p className="text-xl opacity-90 max-w-xl mx-auto">Navigate through space, avoid obstacles, collect power-ups and survive as long as possible!</p>
+          </div>
+          
+          <div className="mt-12 grid md:grid-cols-2 gap-6">
+            <div className="space-y-4 bg-blue-900/20 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30 shadow-lg shadow-blue-500/10">
+              <h2 className="text-2xl font-semibold text-blue-300">How to Play</h2>
+              <ul className="space-y-3 opacity-90">
+                <li className="flex items-center gap-3">
+                  <span className="bg-blue-800/50 px-2 py-1 rounded text-sm">← →</span>
+                  <span>Navigate your ship</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="bg-red-800/50 px-2 py-1 rounded text-sm">SPACE</span>
+                  <span>Fire your weapons</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="bg-purple-800/50 px-2 py-1 rounded text-sm">TAB</span>
+                  <span>Switch weapons</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="space-y-4 bg-purple-900/20 backdrop-blur-sm p-6 rounded-xl border border-purple-500/30 shadow-lg shadow-purple-500/10">
+              <h2 className="text-2xl font-semibold text-purple-300">Power-Ups</h2>
+              <ul className="space-y-3 opacity-90">
+                <li className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-blue-400"></div>
+                  <span>Shield - Restores your defensive shield</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-yellow-400"></div>
+                  <span>Energy - Refills your weapon energy</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-red-400"></div>
+                  <span>Weapon - Upgrades your current weapon</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="mt-10 text-center">
+            <button 
+              onClick={() => setGameStarted(true)}
+              className="px-12 py-5 bg-gradient-to-r from-blue-700 to-purple-700 hover:from-blue-600 hover:to-purple-600 rounded-full transition-all text-2xl font-bold shadow-lg shadow-blue-500/20 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+            >
+              START GAME
+            </button>
+            
+            <p className="mt-4 text-sm opacity-50">Press ESC during game to pause</p>
+          </div>
+        </div>
+        
+        <style jsx global>{`
+          @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  return <ClientSpaceFlight />;
 }
